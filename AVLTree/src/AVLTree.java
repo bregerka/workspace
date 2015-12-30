@@ -186,17 +186,17 @@ public class AVLTree<T extends Comparable<? super T>>{
 		}
 		
 		public BinaryNode rotateWithRight() {
-			BinaryNode orignalRNode = this.rightChild;
-			this.rightChild = null;
+			BinaryNode orignalRNode = this.rightChild;			
 			orignalRNode.leftChild = this;
+			this.rightChild = null;
 			AVLTree.this.numberOfRotations++;
 			return orignalRNode;
 		}
 		
 		public BinaryNode rotateWithLeft() {
-			BinaryNode orignalLNode = this.leftChild;
-			this.leftChild = null;
+			BinaryNode orignalLNode = this.leftChild;			
 			orignalLNode.rightChild = this;
+			this.leftChild = null;
 			AVLTree.this.numberOfRotations++;
 			return orignalLNode;
 		}
