@@ -1,0 +1,105 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class BinarySearchTree<T extends Comparable<? super T>>{
+	private BinaryNode root;
+	
+	public BinarySearchTree(){
+		root = null;
+	}
+	
+	public BinarySearchTree(BinaryNode n){
+		root = n;
+	}
+
+	public Object height() {
+		if(root == null) return -1;
+		return root.height();
+	}
+
+	public Object size() {
+		// TODO Auto-generated method stub
+		if(root == null){ return 0;}
+		return root.size();
+	}
+
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return root == null;
+	}
+
+	public Iterator iterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Iterator preOrderIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object toArrayList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean insert(Object i) {
+		return false;
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private class BinaryNode {
+		private T element;
+		private BinaryNode leftChild;
+		private BinaryNode rightChild;
+		
+		public BinaryNode(){
+			this.element = null;
+			this.rightChild = null;
+			this.leftChild = null;
+		}
+		public BinaryNode(T element){
+			this.element = element;
+			this.leftChild = null;
+			this.rightChild = null;		
+		}
+		
+		public void setLeftChild(BinaryNode leftChild){
+			this.leftChild = leftChild;
+		}
+		
+		public void setRightChild(BinaryNode rightChild){
+			this.rightChild = rightChild;
+		}
+		
+		public BinaryNode getLeftChild(){
+			return leftChild;
+		}
+		
+		public BinaryNode getRightChild(){
+			return rightChild;
+		}
+		
+		public T getElement(){
+			return this.element;
+		}
+		public int height(){
+			// initialize to -1
+			int rHeight = -1;
+			int lHeight = -1;
+			if(this.leftChild != null) lHeight = this.leftChild.height();
+			if(this.rightChild != null) rHeight = this.rightChild.height();
+			return ((lHeight>rHeight)?lHeight:rHeight)+1;
+		}
+		public int size(){
+			return 1;
+		}
+	}
+}
+

@@ -1,0 +1,221 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+
+public class BinarySearchTree<T extends Comparable<? super T>>{
+	private BinaryNode root;
+	private int insertnum;
+	private boolean empty;
+	
+	public BinarySearchTree(){
+		this.root = null;
+		this.insertnum = 0;
+		this.empty = true;
+	}
+	
+	public BinarySearchTree(T n){
+		root = new BinaryNode(n);
+		this.insertnum = 0;
+		this.empty = false;
+	}
+
+	public Object height() {
+		if(root == null) return -1;
+		return root.height();
+	}
+
+	public Object size() {
+		if(root == null) return 0;
+		return root.size();
+	}
+
+	public boolean isEmpty() {
+		return root == null;
+	}
+
+	public Iterator<T> iterator() {
+		return new TreeIterator(this.insertnum);
+	}
+
+	public Iterator<T> preOrderIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object toArrayList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public String toString(){
+	Iterator<T> iterator = this.iterator();
+	ArrayList<T> list = new ArrayList<T>();
+	if(this.root == null) return list.toString();
+	while(iterator.hasNext()) list.add(iterator.next());
+	return list.toString();
+	}
+	
+	public boolean insert(T i) {
+		if(i == null){
+			throw new IllegalArgumentException();
+		}
+		if(this.root == null){
+			this.root = new BinaryNode();
+			this.root.element = i;
+			this.empty = false;
+			this.insertnum ++;
+			return true;
+		}
+		if(this.root.element.compareTo(i) == 1){
+			if(this.root.getLeftChild() == null){
+				this.root.setLeftChild(new BinaryNode(i));
+			}
+			else{
+				if(!this.root.getLeftChild().insert(i)){
+					return false;
+				}
+			}
+			this.empty = false;
+			this.insertnum ++;
+			return true;
+		}
+		if(this.root.element.compareTo(i) == -1){
+			if(this.root.getRightChild() == null){
+				this.root.setRightChild(new BinaryNode(i));
+			}
+			else{
+				if(!this.root.getRightChild().insert(i)){
+					return false;
+				}
+			}
+			this.empty = false;
+			this.insertnum ++;
+			return true;
+		}
+		return false;	
+	}
+	
+	private class BinaryNode {
+		private T element;
+		private BinaryNode leftChild;
+		private BinaryNode rightChild;
+		
+		public BinaryNode(){
+			this.element = null;
+			this.rightChild = null;
+			this.leftChild = null;
+		}
+		public BinaryNode(T element){
+			this.element = element;
+			this.leftChild = null;
+			this.rightChild = null;		
+		}
+		
+		public void setLeftChild(BinaryNode leftChild){
+			this.leftChild = leftChild;
+		}
+		
+		public void setRightChild(BinaryNode rightChild){
+			this.rightChild = rightChild;
+		}
+		
+		public BinaryNode getLeftChild(){
+			return leftChild;
+		}
+		
+		public BinaryNode getRightChild(){
+			return rightChild;
+		}
+		
+		public T getElement(){
+			return this.element;
+		}
+		public int height(){
+			// initialize to -1
+			int rHeight = -1;
+			int lHeight = -1;
+			if(this.leftChild != null) lHeight = this.leftChild.height();
+			if(this.rightChild != null) rHeight = this.rightChild.height();
+			return ((lHeight>rHeight)?lHeight:rHeight)+1;
+		}
+		public int size(){
+			int size = 1;
+			if(this.leftChild != null) size += this.leftChild.size() + 1;
+		    if(this.rightChild != null) size += this.rightChild.size() + 1;
+			return size;
+		}
+		public boolean insert(T i) {
+			if(this.element.compareTo(i) == 1){
+				if(this.getLeftChild() == null){
+					this.setLeftChild(new BinaryNode(i));
+				}
+				else{
+					if(!this.getLeftChild().insert(i)){
+						return false;
+					}
+				}
+				return true;
+			}
+			if(this.element.compareTo(i) == -1){
+				if(this.getRightChild() == null){
+					this.setRightChild(new BinaryNode(i));
+				}
+				else{
+					if(!this.getRightChild().insert(i)){
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+			
+		}
+	}
+	private class TreeIterator implements Iterator<T>{
+		private Stack<BinaryNode> stack = new Stack<BinaryNode>();
+		private int savedCount;
+		private boolean nextHasBeenCalled;
+		private BinaryNode last;	
+		
+		public TreeIterator(int number){
+		this.savedCount = number;
+		pushLeftChild(BinarySearchTree.this.root);
+		this.nextHasBeenCalled = false;
+		this.last = new BinaryNode();
+		}
+
+		private void pushLeftChild(BinaryNode node){
+			if(node != null){
+				this.stack.push(node);
+				pushLeftChild(node.getLeftChild());
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			return !this.stack.empty();
+		}
+
+		@Override
+		public T next() {
+			this.nextHasBeenCalled = true;
+			if(!this.hasNext()) throw new NoSuchElementException("No Elements Remaining");
+			BinaryNode node = this.stack.pop();
+			T result  = node.getElement();
+			if(node.getRightChild() != null){
+				BinaryNode right  = node.getRightChild();
+				pushLeftChild(right);
+			}
+			this.last = node;
+			return result;
+		}
+	}
+}
+

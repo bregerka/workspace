@@ -1,0 +1,56 @@
+import java.util.ArrayList;
+
+public class BinaryNode {
+	private Object element;
+	private BinaryNode leftChild;
+	private BinaryNode rightChild;
+	private BinaryNode currentNode;
+	private int lCount;
+	private int rCount;
+	private int size;
+	
+	public BinaryNode(int element){
+		this.element = element;
+		this.leftChild = null;
+		this.rightChild = null;		
+		this.lCount = -1;
+		this.rCount = -1;
+		this.size = 1;
+		this.currentNode = this;
+	}
+	
+	public void setLeftChild(BinaryNode leftChild){
+		this.leftChild = leftChild;
+		this.size++;
+	}
+	
+	public void setRightChild(BinaryNode rightChild){
+		this.rightChild = rightChild;
+		this.size++;
+	}
+	
+	public BinaryNode getLeftChild(){
+		return leftChild;
+	}
+	
+	public BinaryNode getRightChild(){
+		return rightChild;
+	}
+	
+	public Object getElement(){
+		return element;
+	}
+	public int height(){
+		// initialize to -1
+		if((currentNode.getLeftChild() != null) && (currentNode.getRightChild() != null)){
+			if(currentNode.getLeftChild() != null) lCount++;
+			if(currentNode.getRightChild() != null) rCount++;
+			return height();
+			}
+		return Math.max(lCount,rCount);
+	}
+	public int size(){
+		return this.size;
+	}
+}
+	
