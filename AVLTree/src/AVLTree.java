@@ -115,31 +115,9 @@ public class AVLTree<T extends Comparable<? super T>>{
 			this.numberInserted ++;
 			return true;
 		}
-		if(this.root.element.compareTo(i) == 1){
-			if(this.root.leftChild == null){
-				this.root.leftChild = new BinaryNode(i);
-			}
-			else{
-				if(!this.root.leftChild.insert(i)){
-					return false;
-				}
-			}
-			this.numberInserted ++;
-			return true;
-		}
-		if(this.root.element.compareTo(i) == -1){
-			if(this.root.rightChild == null){
-				this.root.rightChild = new BinaryNode(i);
-			}
-			else{
-				if(!this.root.rightChild.insert(i)){
-					return false;
-				}
-			}
-			this.numberInserted ++;
-			return true;
-		}
-		return false;	
+		BooleanWrapper boolValue = new BooleanWrapper(false);
+		this.root = this.root.insert(i,boolValue);
+		return boolValue.getBool();	
 	}
 	private class BinaryNode {
 		private T element;
@@ -247,32 +225,26 @@ public class AVLTree<T extends Comparable<? super T>>{
 		/**
 		 * Recursively inserts the node
 		 * @param i
-		 * @return Whether or not insertion was sucessful
+		 * @return A BinaryNode class
 		 */
-		public boolean insert(T i) {
+		public BinaryNode insert(T i,BooleanWrapper bool) {
 			if(this.element.compareTo(i) == 1){
 				if(this.leftChild == null){
 					this.leftChild = new BinaryNode(i);
+					bool.setTrue();
+					return this;
 				}
-				else{
-					if(!this.leftChild.insert(i)){
-						return false;
-					}
-				}
-				return true;
+				else this.leftChild.insert(i,bool);
 			}
 			if(this.element.compareTo(i) == -1){
 				if(this.rightChild == null){
 					this.rightChild = new BinaryNode(i);
+					bool.setTrue();
+					return this;
 				}
-				else{
-					if(!this.rightChild.insert(i)){
-						return false;
-					}
-				}
-				return true;
+				else this.rightChild.insert(i,bool);
 			}
-			return false;
+			return this.balance();
 			
 		}
 		/**
@@ -460,5 +432,21 @@ public class AVLTree<T extends Comparable<? super T>>{
 	}
 	public int getRotationCount() {
 		return this.numberOfRotations;
+	}
+	private class BooleanWrapper{
+		private boolean bool;
+		
+		public BooleanWrapper(boolean value){
+			this.bool = value;
+		}
+		public void setTrue(){
+			this.bool = true;
+		}
+		public void setFalse(){
+			this.bool = false;
+		}
+		public boolean getBool(){
+			return this.bool;
+		}
 	}
 }
