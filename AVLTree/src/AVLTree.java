@@ -59,7 +59,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 	 * @return in order tree iterator
 	 */
 	public Iterator<T> iterator() {
-		return new TreeIterator(this.numberInserted);
+		return new PreOrderIterator(this.numberInserted);
 	}
 	/**
 	 * Iterates over the tree using preorder traversal
@@ -119,6 +119,27 @@ public class AVLTree<T extends Comparable<? super T>>{
 		this.root = this.root.insert(i,boolValue);
 		return boolValue.getBool();	
 	}
+	/**
+	 *Remove the data i from the binary search tree.
+	 *
+	 * @param i
+	 * @return if the node was removed or not
+	 */
+	public boolean remove(T i) {
+		if(i == null){
+			throw new IllegalArgumentException();
+		}
+		BooleanWrapper boolValue = new BooleanWrapper(false);
+		if(this.root == null){
+			boolValue.setFalse();
+			return boolValue.getBool();
+		}		
+		this.root = this.root.remove(i,boolValue);
+		return boolValue.getBool();	
+	}
+	public int getRotationCount() {
+		return this.numberOfRotations;
+	}
 	private class BinaryNode {
 		private T element;
 		private BinaryNode leftChild;
@@ -177,14 +198,21 @@ public class AVLTree<T extends Comparable<? super T>>{
 		
 		public BinaryNode balance(){
 			if((this.getRightHeight() - this.getLeftHeight()) == 2){
-				return this.rotateWithRight();
+				if(this.rightChild.leftChild != null) return DoubleRotateWithRight();
+				else return rotateWithRight();
 			}
 			if((this.getRightHeight() - this.getLeftHeight()) == -2){
-				return this.rotateWithLeft();
+				if(this.leftChild.rightChild != null) return DoubleRotateWithLeft();
+				else return rotateWithLeft();
 			}
 			return this;
+		}			
+		private BinaryNode DoubleRotateWithRight() {
+			return null;
 		}
-		
+		private BinaryNode DoubleRotateWithLeft() {
+			return null;
+		}
 		public BinaryNode rotateWithRight() {
 			BinaryNode orignalRNode = this.rightChild;			
 			orignalRNode.leftChild = this;
@@ -234,7 +262,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 					bool.setTrue();
 					return this;
 				}
-				else this.leftChild.insert(i,bool);
+				else this.leftChild = this.leftChild.insert(i,bool);
 			}
 			if(this.element.compareTo(i) == -1){
 				if(this.rightChild == null){
@@ -242,49 +270,49 @@ public class AVLTree<T extends Comparable<? super T>>{
 					bool.setTrue();
 					return this;
 				}
-				else this.rightChild.insert(i,bool);
+				else this.rightChild = this.rightChild.insert(i,bool);
 			}
-			return this.balance();
+			return balance();
 			
 		}
 		/**
 		 * Recursive method to remove a node from a tree
 		 *
 		 * @param i
-		 * @param parent
+		 * @param boolValue
 		 * @return if the node has been removed
 		 */
-		public boolean remove(T i, BinaryNode parent) {
+		public BinaryNode remove(T i, BooleanWrapper boolValue) {
 			if(i.compareTo(this.element) == -1){
-				if(this.leftChild != null){
-					return this.leftChild.remove(i, this);
+					this.leftChild = this.leftChild.remove(i, boolValue);
+			}
+			if(i.compareTo(this.element) == 1){
+					this.rightChild = this.rightChild.remove(i, boolValue);
+			}
+			if(i.compareTo(this.element) == 0){
+				if(this.leftChild == null && this.rightChild == null){
+					boolValue.setTrue();
+					return null;
+				}
+				if (this.leftChild != null && this.rightChild == null){
+					boolValue.setTrue();
+					return this.leftChild;
+				}
+				if (this.leftChild == null && this.rightChild != null){
+					boolValue.setTrue();
+					return this.rightChild;
 				}
 				else{
-					return false;
+					BinaryNode cycleNode = this.rightChild;
+					while(cycleNode.leftChild != null){
+						cycleNode = cycleNode.leftChild;
+					}
+					this.element = cycleNode.element;
+					this.rightChild = this.rightChild.remove(cycleNode.element, boolValue);
+					return balance();
 				}
 			}
-			else if (i.compareTo(this.element) == 1){
-				if(this.rightChild != null){
-					return this.rightChild.remove(i, this);
-				}
-				else{
-					return false;
-				}
-			}
-			else{
-				if(this.leftChild != null && this.rightChild != null){
-					this.element = this.leftChild.maxValue();
-					this.leftChild.remove(this.element, this);
-				}
-				else if (parent.leftChild == this){
-					parent.leftChild = (this.leftChild != null) ? this.leftChild : this.rightChild;
-				}
-				else if (parent.rightChild == this){
-					parent.rightChild = (this.leftChild != null) ? this.leftChild : this.rightChild;
-
-				}
-				return true;
-			}
+			return balance();
 		}
 
 		/**
@@ -396,42 +424,6 @@ public class AVLTree<T extends Comparable<? super T>>{
 				this.nextHasBeenCalled = false;
 			}
 		}
-	}
-	/**
-	 *Remove the data i from the binary search tree.
-	 *
-	 * @param i
-	 * @return if the node was removed or not
-	 */
-	public boolean remove(T i) {
-		if(i == null){
-			throw new IllegalArgumentException();
-		}
-		if(this.root == null){
-			return false;
-		}
-		else{
-			if(this.root.element.compareTo(i) == 0){
-				BinaryNode dummyRoot = new BinaryNode();
-				dummyRoot.leftChild = this.root;
-				boolean result  = this.root.remove(i, dummyRoot);
-				this.root = dummyRoot.leftChild;
-				if(result){
-					this.numberInserted ++;
-				}
-				return result;
-			}
-			else{
-				boolean result = this.root.remove(i, null);
-				if(result){
-					this.numberInserted++;
-				}
-				return result;
-			}
-		}
-	}
-	public int getRotationCount() {
-		return this.numberOfRotations;
 	}
 	private class BooleanWrapper{
 		private boolean bool;
