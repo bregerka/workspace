@@ -144,6 +144,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 		private T element;
 		private BinaryNode leftChild;
 		private BinaryNode rightChild;
+		private int height;
 		
 		/**
 		 * Constructs a BinaryNode with a null element
@@ -152,6 +153,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 			this.element = null;
 			this.rightChild = null;
 			this.leftChild = null;
+			this.height = -1;
 		}
 		/**
 		 * Constructs a BinaryNode with an element
@@ -160,7 +162,8 @@ public class AVLTree<T extends Comparable<? super T>>{
 		public BinaryNode(T element){
 			this.element = element;
 			this.leftChild = null;
-			this.rightChild = null;		
+			this.rightChild = null;	
+			this.height = 0;
 		}
 		/**
 		 * Changes an ArrayList to an Array
@@ -207,11 +210,45 @@ public class AVLTree<T extends Comparable<? super T>>{
 			}
 			return this;
 		}			
-		private BinaryNode DoubleRotateWithRight() {
-			return null;
+		private BinaryNode DoubleRotateWithRight(){
+			if(this.rightChild.rightChild != null){
+				BinaryNode originalRL = this.rightChild.leftChild;
+				BinaryNode originalR = this.rightChild;
+				originalR.leftChild = this;
+				this.rightChild = originalRL;
+				AVLTree.this.numberOfRotations++;
+				return originalR;
+			}
+			else{
+				BinaryNode originalRL = this.rightChild.leftChild;
+				BinaryNode originalR = this.rightChild;
+				originalRL.leftChild = this;
+				originalRL.rightChild = originalR;
+				this.rightChild = null;
+				originalR.leftChild = null;
+				AVLTree.this.numberOfRotations += 2;
+				return originalRL;
+			}
 		}
-		private BinaryNode DoubleRotateWithLeft() {
-			return null;
+		private BinaryNode DoubleRotateWithLeft(){
+			if(this.leftChild.leftChild != null){
+				BinaryNode originalLR = this.leftChild.rightChild;
+				BinaryNode originalL = this.leftChild;
+				originalL.rightChild = this;
+				this.leftChild = originalLR;
+				AVLTree.this.numberOfRotations++;
+				return originalL;
+			}
+			else{
+				BinaryNode originalLR = this.leftChild.rightChild;
+				BinaryNode originalL = this.leftChild;
+				originalLR.rightChild = this;
+				originalLR.leftChild = originalL;
+				this.leftChild = null;
+				originalL.rightChild = null;
+				AVLTree.this.numberOfRotations += 2;
+				return originalLR;
+			}		
 		}
 		public BinaryNode rotateWithRight() {
 			BinaryNode orignalRNode = this.rightChild;			
@@ -284,11 +321,18 @@ public class AVLTree<T extends Comparable<? super T>>{
 		 */
 		public BinaryNode remove(T i, BooleanWrapper boolValue) {
 			if(i.compareTo(this.element) == -1){
+					if(this.leftChild!=null){
 					this.leftChild = this.leftChild.remove(i, boolValue);
+					
+				}
 			}
 			if(i.compareTo(this.element) == 1){
+					if(this.rightChild!=null){
 					this.rightChild = this.rightChild.remove(i, boolValue);
+					}
 			}
+			if(boolValue.bool)
+				this.height =Math.max(this.rightChild.height, this.leftChild.height) + 1;
 			if(i.compareTo(this.element) == 0){
 				if(this.leftChild == null && this.rightChild == null){
 					boolValue.setTrue();
@@ -312,6 +356,8 @@ public class AVLTree<T extends Comparable<? super T>>{
 					return balance();
 				}
 			}
+			
+			
 			return balance();
 		}
 
