@@ -37,7 +37,8 @@ public class AVLTree<T extends Comparable<? super T>>{
 	 */
 	public Object height() {
 		if(root == null) return -1;
-		return root.height();
+		//return root.height();
+		return root.height;
 	}
 	/**
 	 * Calculates the size of the tree
@@ -112,6 +113,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 		if(this.root == null){
 			this.root = new BinaryNode();
 			this.root.element = i;
+			this.root.height = 0;
 			this.numberInserted ++;
 			return true;
 		}
@@ -137,9 +139,14 @@ public class AVLTree<T extends Comparable<? super T>>{
 		this.root = this.root.remove(i,boolValue);
 		return boolValue.getBool();	
 	}
+	/**
+	 * 
+	 * @return number of rotations used
+	 */
 	public int getRotationCount() {
 		return this.numberOfRotations;
 	}
+	
 	private class BinaryNode {
 		private T element;
 		private BinaryNode leftChild;
@@ -188,17 +195,10 @@ public class AVLTree<T extends Comparable<? super T>>{
 			}
 			return list;
 		}
-		
-		public int getLeftHeight(){
-			if(this.leftChild == null) return -1;
-			return this.leftChild.height();
-		}
-		
-		public int getRightHeight(){
-			if(this.rightChild == null) return -1;
-			return this.rightChild.height();
-		}
-		
+		/**
+		 * 	Binary Node that has been balanced on both sides using rotations or was already balanced
+		 * @return Binary Node 
+		 */
 		public BinaryNode balance(){
 			if((this.getRightHeight() - this.getLeftHeight()) == 2){
 				if(this.rightChild.leftChild != null) return DoubleRotateWithRight();
@@ -209,27 +209,40 @@ public class AVLTree<T extends Comparable<? super T>>{
 				else return rotateWithLeft();
 			}
 			return this;
-		}			
+		}	
+		/**
+		 * Perform a double left rotation
+		 * @return Binary Node that was rotated
+		 */
 		private BinaryNode DoubleRotateWithRight(){
 			if(this.rightChild.rightChild != null){
-				BinaryNode originalRL = this.rightChild.leftChild;
+				BinaryNode originalRLNode = this.rightChild.leftChild;
 				BinaryNode originalR = this.rightChild;
 				originalR.leftChild = this;
-				this.rightChild = originalRL;
+				this.rightChild = originalRLNode;
+				this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1; //height update
+				originalRLNode.height = Math.max(originalRLNode.getLeftHeight(), originalRLNode.getRightHeight()) + 1; //height update
 				AVLTree.this.numberOfRotations++;
 				return originalR;
 			}
 			else{
-				BinaryNode originalRL = this.rightChild.leftChild;
+				BinaryNode originalRLNode = this.rightChild.leftChild;
 				BinaryNode originalR = this.rightChild;
-				originalRL.leftChild = this;
-				originalRL.rightChild = originalR;
+				originalRLNode.leftChild = this;
+				originalRLNode.rightChild = originalR;
 				this.rightChild = null;
 				originalR.leftChild = null;
+				originalR.height = Math.max(originalR.getLeftHeight(), originalR.getRightHeight()) + 1;
+				this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1; //height update
+				originalRLNode.height = Math.max(originalRLNode.getLeftHeight(), originalRLNode.getRightHeight()) + 1; //height update
 				AVLTree.this.numberOfRotations += 2;
-				return originalRL;
+				return originalRLNode;
 			}
 		}
+		/**
+		 *  Perform a double right rotation
+		 * @return Binary node that was rotated
+		 */
 		private BinaryNode DoubleRotateWithLeft(){
 			if(this.leftChild.leftChild != null){
 				BinaryNode originalLR = this.leftChild.rightChild;
@@ -246,37 +259,58 @@ public class AVLTree<T extends Comparable<? super T>>{
 				originalLR.leftChild = originalL;
 				this.leftChild = null;
 				originalL.rightChild = null;
+				originalL.height = Math.max(originalL.getLeftHeight(), originalL.getRightHeight()) + 1;
+				this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1; //height update
+				originalLR.height = Math.max(originalLR.getLeftHeight(), originalLR.getRightHeight()) + 1; //height update
 				AVLTree.this.numberOfRotations += 2;
 				return originalLR;
 			}		
 		}
+		/**
+		 * 
+		 * @return the height of the current nodes left child (or -1 if its left child is null)
+		 */
+		private int getLeftHeight() {
+			if(this.leftChild == null) return -1;
+			return leftChild.height;
+		}
+		/**
+		 * 
+		 * @return the height of the current nodes right child (or -1 if its right child is null)
+		 */
+		private int getRightHeight() {
+			if(this.rightChild == null) return -1;
+			return rightChild.height;
+		}
+		/**
+		 * 
+		 * @return Left rotated BinaryNode
+		 */
 		public BinaryNode rotateWithRight() {
-			BinaryNode orignalRNode = this.rightChild;			
+			BinaryNode orignalRNode = this.rightChild;
+			BinaryNode temp = orignalRNode.leftChild;
 			orignalRNode.leftChild = this;
-			this.rightChild = null;
+			this.rightChild = temp;
+			this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1; //height update
+			orignalRNode.height = Math.max(orignalRNode.getLeftHeight(), orignalRNode.getRightHeight()) + 1; //height update		
 			AVLTree.this.numberOfRotations++;
 			return orignalRNode;
 		}
-		
+		/**
+		 * 
+		 * @return Right rotated BinaryNode
+		 */
 		public BinaryNode rotateWithLeft() {
-			BinaryNode orignalLNode = this.leftChild;			
+			BinaryNode orignalLNode = this.leftChild;
+			BinaryNode temp = orignalLNode.rightChild;
 			orignalLNode.rightChild = this;
-			this.leftChild = null;
+			this.leftChild = temp;
+			this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1; //height update
+			orignalLNode.height = Math.max(orignalLNode.getLeftHeight(), orignalLNode.getRightHeight()) + 1; //height update
 			AVLTree.this.numberOfRotations++;
 			return orignalLNode;
 		}
-		/**
-		 * Recursively calculates the height of the tree
-		 * @return the height of the tree
-		 */
-		public int height(){
-			// initialize to -1
-			int rHeight = -1;
-			int lHeight = -1;
-			if(this.leftChild != null) lHeight = this.leftChild.height();
-			if(this.rightChild != null) rHeight = this.rightChild.height();
-			return ((lHeight>rHeight)?lHeight:rHeight)+1;
-		}
+
 		/**
 		 * Recursively calculates the size of the tree
 		 * @return the size of the tree
@@ -292,25 +326,25 @@ public class AVLTree<T extends Comparable<? super T>>{
 		 * @param i
 		 * @return A BinaryNode class
 		 */
-		public BinaryNode insert(T i,BooleanWrapper bool) {
+		public BinaryNode insert(T i,BooleanWrapper boolValue) {
 			if(this.element.compareTo(i) == 1){
 				if(this.leftChild == null){
 					this.leftChild = new BinaryNode(i);
-					bool.setTrue();
-					return this;
+					boolValue.setTrue();
 				}
-				else this.leftChild = this.leftChild.insert(i,bool);
+				else this.leftChild = this.leftChild.insert(i,boolValue);
 			}
-			if(this.element.compareTo(i) == -1){
+			else if(this.element.compareTo(i) == -1){
 				if(this.rightChild == null){
 					this.rightChild = new BinaryNode(i);
-					bool.setTrue();
-					return this;
+					boolValue.setTrue();
 				}
-				else this.rightChild = this.rightChild.insert(i,bool);
+				else this.rightChild = this.rightChild.insert(i,boolValue);
 			}
-			return balance();
-			
+			if(boolValue.bool){
+				this.height = Math.max(this.getLeftHeight(), this.getRightHeight()) + 1;
+			}
+			return balance();	
 		}
 		/**
 		 * Recursive method to remove a node from a tree
@@ -330,9 +364,7 @@ public class AVLTree<T extends Comparable<? super T>>{
 					if(this.rightChild!=null){
 					this.rightChild = this.rightChild.remove(i, boolValue);
 					}
-			}
-			if(boolValue.bool)
-				this.height =Math.max(this.rightChild.height, this.leftChild.height) + 1;
+			}			
 			if(i.compareTo(this.element) == 0){
 				if(this.leftChild == null && this.rightChild == null){
 					boolValue.setTrue();
@@ -356,23 +388,16 @@ public class AVLTree<T extends Comparable<? super T>>{
 					return balance();
 				}
 			}
-			
-			
+			if(boolValue.bool){
+				if((this.rightChild != null) && (this.leftChild != null))
+				this.height = Math.max(this.rightChild.height, this.leftChild.height) + 1;
+				if((this.rightChild != null) && (this.leftChild == null))
+					this.height = this.rightChild.height + 1;
+				if((this.rightChild == null) && (this.leftChild != null))
+					this.height = this.leftChild.height + 1;
+				if((this.rightChild == null) && (this.leftChild == null)) this.height = 0;
+			}	
 			return balance();
-		}
-
-		/**
-		 * Finds the max value of the left subtree.
-		 
-		 * @return the max value
-		 */
-		private T maxValue() {
-			if(this.rightChild == null){
-				return this.element;
-			}
-			else{
-				return this.rightChild.maxValue();
-			}
 		}
 	}
 	private class TreeIterator implements Iterator<T>{
@@ -471,6 +496,11 @@ public class AVLTree<T extends Comparable<? super T>>{
 			}
 		}
 	}
+	/**
+	 * 
+	 * Creates a Boolean Wrapper
+	 *
+	 */
 	private class BooleanWrapper{
 		private boolean bool;
 		
